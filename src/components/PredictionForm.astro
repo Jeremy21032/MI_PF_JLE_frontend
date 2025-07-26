@@ -80,7 +80,7 @@ const API_URL = import.meta.env.PUBLIC_API_URL;
         monto_promedio: parseFloat(formData.get("monto_promedio")),
         saldo_promedio: parseFloat(formData.get("saldo_promedio")),
       };
-      const response = await fetch(API_URL, {
+      const response = await fetch("https://mi-pf-jle.azurewebsites.net/api/segment-predict?code=JuQZe1UwLLPw6CttEEkKQty1hdETff1t7ITcCuBXf4L3AzFuqaLLdQ==", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

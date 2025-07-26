@@ -63,7 +63,7 @@ async function fetchAllExamples() {
   const results = await Promise.all(
     ejemplos.map(async (ej) => {
       try {
-        const r = await fetch(API_URL, {
+        const r = await fetch("https://mi-pf-jle.azurewebsites.net/api/segment-predict?code=JuQZe1UwLLPw6CttEEkKQty1hdETff1t7ITcCuBXf4L3AzFuqaLLdQ==", {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(ej),
