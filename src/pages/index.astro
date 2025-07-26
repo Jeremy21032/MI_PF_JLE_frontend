@@ -1,11 +1,40 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import "../styles/global.css";
+import "../styles/cards.css";
+import PredictionForm from "../components/PredictionForm.astro";
+import ResultCard from "../components/ResultCard.astro";
+import Footer from "../components/Footer.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="es">
+  <head>
+    <title>Sistema de Predicción</title>
+    <meta charset="UTF-8" />
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <div class="flex flex-col items-center justify-center min-h-screen">
+      <h1 class="text-4xl font-extrabold text-gray-900 text-center mb-2">
+        Sistema de Predicción
+      </h1>
+      <p class="text-lg text-gray-700 text-center mb-8">
+        Utiliza algoritmos de machine learning para clasificar perfiles de
+        clientes en clusters específicos
+      </p>
+      <div
+        class="flex flex-col lg:flex-row gap-8 w-full max-w-5xl justify-center"
+      >
+        <PredictionForm />
+        <ResultCard />
+      </div>
+      <Footer />
+    </div>
+    <script>
+      window.addEventListener("predictionResult", function (e) {
+        const result = e.detail;
+        localStorage.setItem("predictionResult", JSON.stringify(result));
+        window.dispatchEvent(new Event("updateResultCard"));
+      });
+    </script>
+  </body>
+</html>

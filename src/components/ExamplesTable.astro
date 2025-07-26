@@ -1,0 +1,91 @@
+---
+// ExamplesTable.astro
+import '../styles/cards.css';
+
+---
+<div class="overflow-x-auto mt-8">
+  <table class="min-w-full bg-white border rounded-lg shadow text-sm">
+    <thead>
+      <tr>
+        <th class="px-3 py-2 border">Edad</th>
+        <th class="px-3 py-2 border">Género</th>
+        <th class="px-3 py-2 border">Monto Promedio</th>
+        <th class="px-3 py-2 border">Saldo Promedio</th>
+        <th class="px-3 py-2 border">Cluster</th>
+        <th class="px-3 py-2 border">Segmento</th>
+        <th class="px-3 py-2 border">Confianza</th>
+      </tr>
+    </thead>
+    <tbody id="examples-tbody">
+      <tr><td colspan="7" class="text-center py-4">Cargando...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+// Genera un número aleatorio entero entre min y max (incluidos)
+function randomInt(min:any, max:any) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Genera ejemplos aleatorios para cada cluster asegurando al menos N por cluster
+function generarEjemplosPorCluster() {
+  // Definición de rangos por cluster (ajusta según tu lógica de clusters)
+  const clusters = [
+    { edad: [30, 40], genero: [0, 1], monto_promedio: [400, 800], saldo_promedio: [45000, 55000] },
+    { edad: [50, 60], genero: [0, 1], monto_promedio: [1800, 2300], saldo_promedio: [190000, 220000] },
+    { edad: [35, 40], genero: [0, 1], monto_promedio: [900, 1300], saldo_promedio: [95000, 110000] },
+    { edad: [65, 70], genero: [0, 1], monto_promedio: [8000, 10500], saldo_promedio: [47000000, 50000000] },
+    { edad: [40, 50], genero: [0, 1], monto_promedio: [65000, 75000], saldo_promedio: [480000, 540000] },
+  ];
+  const ejemplos: any[] = [];
+  const ejemplosPorCluster = 10;
+  clusters.forEach(rango => {
+    for (let i = 0; i < ejemplosPorCluster; i++) {
+      ejemplos.push({
+        edad: randomInt(rango.edad[0], rango.edad[1]),
+        genero: randomInt(rango.genero[0], rango.genero[1]),
+        monto_promedio: randomInt(rango.monto_promedio[0], rango.monto_promedio[1]),
+        saldo_promedio: randomInt(rango.saldo_promedio[0], rango.saldo_promedio[1]),
+      });
+    }
+  });
+  return ejemplos;
+}
+
+const API_URL = import.meta.env.PUBLIC_API_URL;
+
+async function fetchAllExamples() {
+  const tbody = document.getElementById('examples-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4">Cargando...</td></tr>`;
+  const ejemplos = generarEjemplosPorCluster();
+  const results = await Promise.all(
+    ejemplos.map(async (ej) => {
+      try {
+        const r = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ej),
+        });
+        const data = await r.json();
+        return { ...ej, ...data };
+      } catch {
+        return { ...ej, cluster: 'Error', descripcion: 'Error' };
+      }
+    })
+  );
+  tbody.innerHTML = results.map((r) => `
+    <tr>
+      <td class="px-3 py-2 border">${r.edad}</td>
+      <td class="px-3 py-2 border">${r.genero === 0 ? 'Masculino' : 'Femenino'}</td>
+      <td class="px-3 py-2 border">$${r.monto_promedio}</td>
+      <td class="px-3 py-2 border">$${r.saldo_promedio}</td>
+      <td class="px-3 py-2 border">${r.cluster}</td>
+      <td class="px-3 py-2 border">${r.descripcion || r.segmento || '-'}</td>
+      <td class="px-3 py-2 border">${r.confianza !== undefined ? Number(r.confianza).toFixed(1) + '%' : '-'}</td>
+    </tr>
+  `).join('');
+}
+window.addEventListener('DOMContentLoaded', fetchAllExamples);
+</script>
